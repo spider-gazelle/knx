@@ -12,22 +12,22 @@ class KNX
     def to_slice
       raw_data = @data.to_slice
       write_data = if @cemi.apply_apci(@action_type, raw_data)
-                      @cemi.data_length = raw_data.size.to_u8
+                     @cemi.data_length = raw_data.size.to_u8
 
-                      if raw_data.size > 1
-                        raw_data[1..-1]
-                      else
-                        Bytes.new(0)
-                      end
-                    elsif raw_data.size > 0
-                      @cemi.data_length = raw_data.size.to_u8
-                      raw_data
-                    else
-                      @cemi.data_length = 0_u8
-                      Bytes.new(0)
-                    end
+                     if raw_data.size > 1
+                       raw_data[1..-1]
+                     else
+                       Bytes.new(0)
+                     end
+                   elsif raw_data.size > 0
+                     @cemi.data_length = raw_data.size.to_u8
+                     raw_data
+                   else
+                     @cemi.data_length = 0_u8
+                     Bytes.new(0)
+                   end
 
-      @cemi.source_address      = @source_address.to_slice
+      @cemi.source_address = @source_address.to_slice
       @cemi.destination_address = @destination_address.to_slice
 
       # 17 == header + cemi
@@ -72,7 +72,7 @@ class KNX
       @source_address = IndividualAddress.parse_friendly("0.0.1")
       @destination_address = address
 
-      @cemi.source_address      = @source_address.to_slice
+      @cemi.source_address = @source_address.to_slice
       @cemi.destination_address = @destination_address.to_slice
     end
 

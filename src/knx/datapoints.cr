@@ -1,4 +1,3 @@
-
 class KNX
   def self.datapoint(id, value) : Datapoint
     case id.to_s

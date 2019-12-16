@@ -25,6 +25,9 @@ class KNX
     RemoteBasicConfigRequest = 0x0742
     RemoteResetRequest       = 0x0743
 
+    # Object Server
+    ObjectServer = 0xF080
+
     # This wraps a regular KNX frame
     SecureWrapper = 0x0950
 

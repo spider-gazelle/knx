@@ -1,4 +1,3 @@
-
 class KNX
   # APCI type
   enum ActionType
@@ -121,7 +120,7 @@ class KNX
     LOW
   end
 
-  ErrorCodes = {
+  ERROR_CODES = {
     0x00 => "Unspecified Error",
     0x01 => "Out of range",
     0x02 => "Out of maxrange",
