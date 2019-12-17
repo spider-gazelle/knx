@@ -31,7 +31,7 @@ class KNX
   class DeviceInfo < BinData
     endian :big
 
-    uint8 length
+    uint8 length, value: ->{ 54 }
     enum_field UInt8, description_type : DescriptionType = DescriptionType::DeviceInformation
     custom info : DIB = DIB.new
   end
@@ -39,7 +39,7 @@ class KNX
   class SupportedServices < BinData
     endian :big
 
-    uint8 length
+    uint8 length, value: ->{ families.size * 2 + 2 }
     enum_field UInt8, description_type : DescriptionType = DescriptionType::SupportedServiceFamilies
     array families : ServiceFamily, length: ->{ (length - 2) // 2 }
   end
