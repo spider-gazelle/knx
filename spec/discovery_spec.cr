@@ -2,6 +2,37 @@ require "spec"
 require "../src/knx/discovery/search_request"
 
 describe KNX::ObjectServer do
+  it "should parse the HPAI component" do
+    raw = Bytes[0x08, 0x01, 0xc0, 0xa8, 0x2a, 0x01, 0x84, 0x95]
+    input = IO::Memory.new(raw)
+    hpai = input.read_bytes(KNX::HPAI)
+    hpai.port.should eq(33941)
+    hpai.ip_address.address.should eq("192.168.42.1")
+
+    outp = KNX::HPAI.new(Socket::IPAddress.new("192.168.42.1", 33941))
+    outp.to_slice.should eq(raw)
+  end
+
+  it "should parse the DIB component" do
+    raw = Bytes[0x36, 0x01, 0x02, 0x00, 0x11, 0x00, 0x23, 0x42,
+                0x13, 0x37, 0x13, 0x37, 0x13, 0x37, 0xE0, 0x00,
+                0x17, 0x0c, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05,
+                0x47, 0x69, 0x72, 0x61, 0x20, 0x4b, 0x4e, 0x58,
+                0x2f, 0x49, 0x50, 0x2d, 0x52, 0x6f, 0x75, 0x74,
+                0x65, 0x72, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+    input = IO::Memory.new(raw)
+    dib = input.read_bytes(KNX::DeviceInfo)
+    dib.name.should eq("Gira KNX/IP-Router")
+    dib.mac_address.should eq("00:01:02:03:04:05")
+    dib.multicast_address.should eq("224.0.23.12")
+    dib.serial.should eq("13:37:13:37:13:37")
+    dib.info.source.to_s.should eq("1.1.0")
+    dib.info.medium.should eq(KNX::MediumType::TP1)
+
+    dib.to_slice.should eq(raw)
+  end
+
   # Based on: https://github.com/XKNX/xknx/tree/master/test/knxip_tests
   it "should parse and generate a search request" do
     input = Bytes[0x06, 0x10, 0x02, 0x01, 0x00, 0x0e, 0x08, 0x01, 0xe0, 0x00, 0x17, 0x0c, 0x0e, 0x57]
@@ -29,6 +60,6 @@ describe KNX::ObjectServer do
     datagram = input.read_bytes(KNX::SearchResponse)
     datagram.to_slice.should eq(raw)
 
-    datagram.device_name.should eq("Gira KNX/IP-Router")
+    datagram.device.info.name.should eq("Gira KNX/IP-Router")
   end
 end

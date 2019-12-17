@@ -12,14 +12,10 @@ class KNX
     custom address : HPAI = HPAI.new
 
     def self.new(ip : Socket::IPAddress, protocol : ProtocolType = ProtocolType::IPv4UDP)
-      parts = ip.address.split('.').map(&.to_u8)
-      bytes = Bytes[parts[0], parts[1], parts[2], parts[3]]
-
       request = SearchRequest.new
       request.header.request_length = 14
       request.header.request_type = ::KNX::RequestTypes::SearchRequest
-      request.address.ip_address = bytes
-      request.address.port = ip.port.to_u16
+      request.address.ip_address = ip
       request
     end
 
@@ -49,9 +45,5 @@ class KNX
     custom address : HPAI = HPAI.new
     custom device : DeviceInfo = DeviceInfo.new
     custom services : SupportedServices = SupportedServices.new
-
-    def device_name
-      @device.info.friendly_name.rstrip('\0')
-    end
   end
 end
