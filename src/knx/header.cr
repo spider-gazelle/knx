@@ -44,7 +44,7 @@ class KNX
     endian big
 
     uint8 :header_length, default: 0x06 # Length 6 (always for version 1)
-    uint8 :version
+    uint8 :version, default: 0x10_u8    # version 1
     enum_field UInt16, request_type : RequestTypes = RequestTypes::RoutingIndication
     uint16 :request_length
 
