@@ -196,7 +196,8 @@ class KNX
     endian :big
 
     enum_field UInt8, msg_code : MsgCode = MsgCode::RawRequest
-    uint8 :info_length
+    uint8 :info_length, value: ->{ additional_info.size }
+    bytes :additional_info, length: ->{ info_length }
 
     # ---------------------
     #    Control Fields
@@ -260,6 +261,7 @@ class KNX
       bits 4, :extended_frame_format
     end
 
+    # When sending, setting the source address to 0 allows the router to configure
     bytes :source_address, length: ->{ 2 }
     bytes :destination_address, length: ->{ 2 }
 
