@@ -1,3 +1,4 @@
+require "socket"
 require "./hpai"
 require "./dib"
 
@@ -22,6 +23,7 @@ class KNX
       request
     end
 
+    # TODO:: improve this implementation
     def self.perform_search(local_ip = "127.0.0.1", knx_multicast_addr = Socket::IPAddress.new("224.0.23.12", 3671))
       # Open a new UDP socket
       client = UDPSocket.new(Socket::Family::INET)
@@ -47,5 +49,9 @@ class KNX
     custom address : HPAI = HPAI.new
     custom device : DeviceInfo = DeviceInfo.new
     custom services : SupportedServices = SupportedServices.new
+
+    def device_name
+      @device.info.friendly_name.rstrip('\0')
+    end
   end
 end
