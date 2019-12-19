@@ -8,6 +8,8 @@ class KNX
   class HPAI < BinData
     endian :big
 
+    LENGTH = 8
+
     uint8 length, default: 8_u8
     enum_field UInt8, protocol : ProtocolType = ProtocolType::IPv4UDP
     bytes ip_addr, length: ->{ 4 }

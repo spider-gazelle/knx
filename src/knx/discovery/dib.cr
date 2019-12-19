@@ -31,6 +31,8 @@ class KNX
   class DeviceInfo < BinData
     endian :big
 
+    LENGTH = 54
+
     uint8 length, value: ->{ 54 }
     enum_field UInt8, description_type : DescriptionType = DescriptionType::DeviceInformation
     custom info : DIB = DIB.new
