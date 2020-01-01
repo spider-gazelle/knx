@@ -8,8 +8,8 @@ class KNX
     DescriptionResponse        = 0x0204
     ConnectRequest             = 0x0205
     ConnectResponse            = 0x0206
-    ConnectionstateRequest     = 0x0207
-    ConnectionstateResponse    = 0x0208
+    ConnectionStateRequest     = 0x0207
+    ConnectionStateResponse    = 0x0208
     DisconnectRequest          = 0x0209
     DisconnectResponse         = 0x020A
     DeviceConfigurationRequest = 0x0310

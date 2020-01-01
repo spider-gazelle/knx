@@ -1,6 +1,7 @@
 require "socket"
 require "./cri"
 require "./crd"
+require "./error_status"
 
 class KNX
   class ConnectRequest < BinData

@@ -1,7 +1,7 @@
 require "spec"
 require "../src/knx/discovery/search_request"
 
-describe KNX::ObjectServer do
+describe KNX::SearchRequest do
   it "should parse the HPAI component" do
     raw = Bytes[0x08, 0x01, 0xc0, 0xa8, 0x2a, 0x01, 0x84, 0x95]
     input = IO::Memory.new(raw)
