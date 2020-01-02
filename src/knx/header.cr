@@ -18,8 +18,8 @@ class KNX
     TunnellingACK              = 0x0421
     RoutingIndication          = 0x0530
     RoutingLostMessage         = 0x0531
+    RoutingBusy                = 0x0532
 
-    RoutingBusy              = 0x0532
     RemoteDiagnosticRequest  = 0x0740
     RemoteDiagnosticResponse = 0x0741
     RemoteBasicConfigRequest = 0x0742

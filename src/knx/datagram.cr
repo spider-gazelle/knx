@@ -121,8 +121,9 @@ class KNX
       @header = io.read_bytes Header
       @cemi = io.read_bytes CEMI
 
-      # Header + cemi == 17 bytes
-      data_length = @header.request_length - 17
+      # Header == 6 bytes
+      # cemi min is == 11 bytes
+      data_length = @header.request_length - 17 - @cemi.info_length
       if @cemi.data_length > data_length
         @data.write_byte @cemi.data
         @action_type = ActionType.from_value(@cemi.apci)
