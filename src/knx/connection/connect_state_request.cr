@@ -20,9 +20,9 @@ class KNX
       control : Socket::IPAddress,
       protocol : ProtocolType = ProtocolType::IPv4UDP
     )
-      request = ConnectStateRequest.new
+      request = self.new
       request.channel_id = channel_id.to_u8
-      request.header.request_length = (HPAI::LENGTH + ErrorStatus::LENGTH + request.header.header_length).to_u16
+      request.header.request_length = (HPAI::LENGTH + 2 + request.header.header_length).to_u16
       request.header.request_type = ::KNX::RequestTypes::ConnectionStateRequest
       request.control_endpoint.ip_address = control
       request.control_endpoint.protocol = protocol

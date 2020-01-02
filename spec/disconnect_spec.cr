@@ -10,6 +10,9 @@ describe KNX::DisconnectRequest do
     req = input.read_bytes(KNX::DisconnectRequest)
     req.header.request_type.should eq(KNX::RequestTypes::DisconnectRequest)
     req.control_endpoint.ip_address.should eq(Socket::IPAddress.new("192.168.200.12", 50100))
+    req.channel_id.should eq(21)
+
+    KNX::DisconnectRequest.new(1, Socket::IPAddress.new("192.168.200.12", 50100)).class.should eq(KNX::DisconnectRequest)
   end
 
   it "should parse a disconnect response" do

@@ -8,6 +8,7 @@ require "./knx/discovery/search_request"
 require "./knx/connection/connect_request"
 require "./knx/connection/connect_state_request"
 require "./knx/connection/disconnect_request"
+require "./knx/connection/tunnel_request"
 
 # Discovery and negotiation: http://knxer.net/?p=78
 
