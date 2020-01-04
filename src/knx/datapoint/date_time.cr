@@ -1,4 +1,15 @@
 class KNX
+  enum DayOfWeek
+    None      = 0
+    Monday
+    Tuesday
+    Wednesday
+    Thursday
+    Friday
+    Saturday
+    Sunday
+  end
+
   class DateTime < Datapoint
     property value : Time = Time.utc
     property using_ntp : Bool = true
@@ -25,17 +36,6 @@ class KNX
       # Is this a week day / not a holiday
       WorkingDay
       Fault
-    end
-
-    enum DayOfWeek
-      None = 0
-      Monday
-      Tuesday
-      Wednesday
-      Thursday
-      Friday
-      Saturday
-      Sunday
     end
 
     def from_datapoint(data : Bytes)
@@ -78,6 +78,74 @@ class KNX
       flags |= ResponseFlags::DaylightSavings if @daylight_savings
 
       Bytes[year, month, day_of_month, hour_of_day, minute, second, flags.to_i, 0x80]
+    end
+  end
+
+  class DpTime < Datapoint
+    property value : Time = Time.utc
+    property day : DayOfWeek = DayOfWeek::None
+
+    def initialize(@value : Time)
+    end
+
+    def initialize(data : Bytes)
+      from_datapoint data
+    end
+
+    def from_datapoint(data : Bytes)
+      hour_of_day = data[0].bits(0..4).to_i
+      @day = DayOfWeek.from_value(data[0].bits(5..7).to_i)
+      minute = data[1].bits(0..5).to_i
+      second = data[2].bits(0..5).to_i
+
+      now = Time.local
+      @value = Time.local(now.year, now.month, now.day, hour_of_day, minute, second)
+    end
+
+    def to_datapoint : Bytes
+      hour_of_day = @value.hour | (@day.to_i << 5)
+      minute = @value.minute
+      second = @value.second
+      Bytes[hour_of_day, minute, second]
+    end
+  end
+
+  class Date < Datapoint
+    property value : Time = Time.utc
+
+    def initialize(@value : Time)
+    end
+
+    def initialize(data : Bytes)
+      from_datapoint data
+    end
+
+    def from_datapoint(data : Bytes)
+      day_of_month = data[0].bits(0..4).to_i
+      month = data[1].bits(0..3).to_i
+      year = data[2].bits(0..6).to_i
+
+      if year >= 90
+        year += 1900
+      else
+        year += 2000
+      end
+
+      @value = Time.local(year, month, day_of_month)
+    end
+
+    def to_datapoint : Bytes
+      year = @value.year
+
+      if 2000 <= year < 2090
+        year = year - 2000
+      elsif 1990 <= year < 2000
+        year = year - 1900
+      else
+        raise "unable to represent year #{year}"
+      end
+
+      Bytes[@value.day, @value.month, year]
     end
   end
 end

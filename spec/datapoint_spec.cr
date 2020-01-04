@@ -58,4 +58,71 @@ describe "knx datapoint helper" do
       dt.to_datapoint.should eq(Bytes[0x75, 0x0B, 0x1C, 0x17, 0x07, 0x18, 0x04, 0x80])
     end
   end
+
+  describe KNX::DpTime do
+    it "should parse encoded times" do
+      dt = KNX::DpTime.new(Bytes[0x4D, 0x17, 0x2A])
+      date = dt.value
+      date.hour.should eq(13)
+      date.minute.should eq(23)
+      date.second.should eq(42)
+      dt.day.should eq(KNX::DayOfWeek::Tuesday)
+      dt.to_datapoint.should eq(Bytes[0x4D, 0x17, 0x2A])
+    end
+  end
+
+  describe KNX::Date do
+    it "should parse an early date" do
+      dt = KNX::Date.new(Bytes[0x1F, 0x01, 0x5A])
+      date = dt.value
+      date.day.should eq(31)
+      date.month.should eq(1)
+      date.year.should eq(1990)
+
+      dt.to_datapoint.should eq(Bytes[0x1F, 0x01, 0x5A])
+    end
+
+    it "should parse later date" do
+      dt = KNX::Date.new(Bytes[0x04, 0x01, 0x02])
+      date = dt.value
+      date.day.should eq(4)
+      date.month.should eq(1)
+      date.year.should eq(2002)
+
+      dt.to_datapoint.should eq(Bytes[0x04, 0x01, 0x02])
+    end
+  end
+
+  describe KNX::DpString do
+    it "should parse strings" do
+      dt = KNX::DpString.new(Bytes[0x4B, 0x4E, 0x58, 0x20, 0x69, 0x73, 0x20, 0x4F, 0x4B, 0x00, 0x00, 0x00, 0x00, 0x00])
+      dt.value.should eq("KNX is OK")
+      dt.to_datapoint.should eq(Bytes[0x4B, 0x4E, 0x58, 0x20, 0x69, 0x73, 0x20, 0x4F, 0x4B, 0x00])
+    end
+
+    it "should parse long strings" do
+      bytes = Bytes[0x41, 0x41, 0x41, 0x41, 0x41, 0x42, 0x42, 0x42, 0x42, 0x42, 0x43, 0x43, 0x43, 0x43]
+      dt = KNX::DpString.new(bytes)
+      dt.value.should eq("AAAAABBBBBCCCC")
+      dt.to_datapoint.should eq(bytes)
+      dt.value = "AAAAABBBBBCCCCDD"
+      dt.to_datapoint.should eq(bytes)
+    end
+  end
+
+  describe KNX::FourByteFloat do
+    it "should parse a 32bit float" do
+      dt = KNX::FourByteFloat.new(Bytes[0x42, 0xEF, 0x00, 0x00])
+      dt.value.should eq(119.5)
+      dt.to_datapoint.should eq(Bytes[0x42, 0xEF, 0x00, 0x00])
+    end
+
+    it "should parse a different 32bit float" do
+      dt = KNX::FourByteFloat.new(Bytes[0x3F, 0x71, 0xEB, 0x86])
+      dt.value.should eq(0.94500005_f32)
+      dt.to_datapoint.should eq(Bytes[0x3F, 0x71, 0xEB, 0x86])
+      dt.value = 0.945000052452.to_f32
+      dt.to_datapoint.should eq(Bytes[0x3F, 0x71, 0xEB, 0x86])
+    end
+  end
 end
