@@ -23,7 +23,11 @@ class KNX
       used_first_byte = @cemi.apply_apci(action, raw_data)
 
       if used_first_byte
-        @extended_bytes = raw_data[1..-1]
+        @extended_bytes = if raw_data.size > 1
+                            raw_data[1..-1]
+                          else
+                            Bytes.new(0)
+                          end
       else
         @extended_bytes = raw_data
       end

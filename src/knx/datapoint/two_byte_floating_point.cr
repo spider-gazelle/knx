@@ -1,19 +1,4 @@
 class KNX
-  def self.datapoint(id, value) : Datapoint
-    case id.to_s
-    when "9.001"
-      TwoByteFloatingPoint.new(value)
-    else
-      raise "unknown datapoint #{id}"
-    end
-  end
-
-  abstract class Datapoint
-    abstract def initialize(data : Bytes)
-    abstract def to_datapoint : Bytes
-    abstract def from_datapoint(data : Bytes)
-  end
-
   class TwoByteFloatingPoint < Datapoint
     property value : Float64 = 0.0
 
@@ -44,7 +29,7 @@ class KNX
     end
 
     def to_datapoint : Bytes
-      raise "input value is not in a valid range" if value < -273 || value > 670760
+      raise "input value is not in a valid range" if value <= -670761.0 || value >= 670761.0
 
       v = (@value * 100.0).round
       e = 0
