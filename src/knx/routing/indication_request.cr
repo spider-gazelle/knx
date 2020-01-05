@@ -60,8 +60,8 @@ class KNX
 
       source_address = IndividualAddress.parse_friendly("0.0.1")
       destination_address = Address.parse(address)
-      request.cemi.source_address = @source_address.to_slice
-      request.cemi.destination_address = @destination_address.to_slice
+      request.cemi.source_address = source_address.to_slice
+      request.cemi.destination_address = destination_address.to_slice
 
       request.apply_apci(action, data)
 
