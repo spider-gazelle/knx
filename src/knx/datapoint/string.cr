@@ -6,10 +6,10 @@ class KNX
     end
 
     def initialize(data : Bytes)
-      from_datapoint data
+      from_bytes data
     end
 
-    def from_datapoint(data : Bytes)
+    def from_bytes(data : Bytes)
       io = IO::Memory.new(data.size)
       data.each do |byte|
         break if byte == 0_u8
@@ -18,7 +18,7 @@ class KNX
       @value = String.new(io.to_slice)
     end
 
-    def to_datapoint : Bytes
+    def to_bytes : Bytes
       io = IO::Memory.new(@value.size + 1)
       io.write @value.to_slice
       io.write_byte(0_u8)

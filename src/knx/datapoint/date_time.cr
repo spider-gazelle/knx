@@ -20,7 +20,7 @@ class KNX
     end
 
     def initialize(data : Bytes)
-      from_datapoint data
+      from_bytes data
     end
 
     @[Flags]
@@ -38,7 +38,7 @@ class KNX
       Fault
     end
 
-    def from_datapoint(data : Bytes)
+    def from_bytes(data : Bytes)
       now = Time.local
       flags = ResponseFlags.from_value(data[6].to_i)
 
@@ -65,7 +65,7 @@ class KNX
       @value = Time.local(year, month, day_of_month, hour_of_day, minute, second)
     end
 
-    def to_datapoint : Bytes
+    def to_bytes : Bytes
       year = @value.year - 1900
       month = @value.month
       day_of_month = @value.day
@@ -89,10 +89,10 @@ class KNX
     end
 
     def initialize(data : Bytes)
-      from_datapoint data
+      from_bytes data
     end
 
-    def from_datapoint(data : Bytes)
+    def from_bytes(data : Bytes)
       hour_of_day = data[0].bits(0..4).to_i
       @day = DayOfWeek.from_value(data[0].bits(5..7).to_i)
       minute = data[1].bits(0..5).to_i
@@ -102,7 +102,7 @@ class KNX
       @value = Time.local(now.year, now.month, now.day, hour_of_day, minute, second)
     end
 
-    def to_datapoint : Bytes
+    def to_bytes : Bytes
       hour_of_day = @value.hour | (@day.to_i << 5)
       minute = @value.minute
       second = @value.second
@@ -117,10 +117,10 @@ class KNX
     end
 
     def initialize(data : Bytes)
-      from_datapoint data
+      from_bytes data
     end
 
-    def from_datapoint(data : Bytes)
+    def from_bytes(data : Bytes)
       day_of_month = data[0].bits(0..4).to_i
       month = data[1].bits(0..3).to_i
       year = data[2].bits(0..6).to_i
@@ -134,7 +134,7 @@ class KNX
       @value = Time.local(year, month, day_of_month)
     end
 
-    def to_datapoint : Bytes
+    def to_bytes : Bytes
       year = @value.year
 
       if 2000 <= year < 2090

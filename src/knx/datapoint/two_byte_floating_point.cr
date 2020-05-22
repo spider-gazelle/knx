@@ -7,10 +7,10 @@ class KNX
     end
 
     def initialize(data : Bytes)
-      from_datapoint data
+      from_bytes data
     end
 
-    def from_datapoint(data : Bytes)
+    def from_bytes(data : Bytes)
       m = (data[0].bits(0..2).to_i << 8) | data[1]
       signed = data[0].bit(7) == 1
 
@@ -28,7 +28,7 @@ class KNX
       @value = (calc * (2 ** power)).to_f64.round(2)
     end
 
-    def to_datapoint : Bytes
+    def to_bytes : Bytes
       raise "input value is not in a valid range" if value <= -670761.0 || value >= 670761.0
 
       v = (@value * 100.0).round

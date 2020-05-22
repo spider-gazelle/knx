@@ -36,7 +36,7 @@ class KNX
       data
     end
 
-    # Returns a KNX Object Server datagram as a ruby object for easy inspection
+    # Returns a KNX Object Server datagram as an object for easy inspection
     #
     # @param data [String] a binary string containing the datagram
     # @return [Datagram] a ruby object representing the data

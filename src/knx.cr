@@ -57,8 +57,10 @@ class KNX
               break
             end
             bytes[index..-1]
+          when Float, String, Time
+            KNX.datapoint(data).to_bytes
           when Datapoint
-            data.to_datapoint
+            data.to_bytes
           else
             # Must support `to_slice`
             data.to_slice

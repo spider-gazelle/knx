@@ -4,8 +4,6 @@ Constructs [KNX standard](https://en.wikipedia.org/wiki/KNX_(standard)) datagram
 
 [![Build Status](https://travis-ci.org/spider-gazelle/knx.svg?branch=master)](https://travis-ci.org/spider-gazelle/knx)
 
-You"ll need a router style gateway. I recommend one that supports TCP/IP such as [MDT Interfaces](http://www.mdt.de/EN_Interfaces.html) however you can use multicast groups if your network is configured to allow this.
-
 
 ## Usage
 
@@ -32,7 +30,7 @@ request = knx.action("1/2/3", 150)
 bytes = request.to_slice
 
 # Send byte_string to KNX network to execute the request
-# Supports multicast, unicast and TCP/IP tunneling (when supported)
+# Supports multicast, unicast and TCP/IP tunnelling
 
 ```
 

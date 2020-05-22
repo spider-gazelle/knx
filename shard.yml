@@ -4,7 +4,7 @@ version: 1.0.0
 dependencies:
   bindata:
     github: spider-gazelle/bindata
-    version: ~> 1.2
+    version: ~> 1.5
   cmac:
     github: spider-gazelle/cmac
     version: ~> 1.0

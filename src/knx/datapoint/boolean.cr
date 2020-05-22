@@ -6,14 +6,14 @@ class KNX
     end
 
     def initialize(data : Bytes)
-      from_datapoint data
+      from_bytes data
     end
 
-    def from_datapoint(data : Bytes)
+    def from_bytes(data : Bytes)
       @value = data[0].bit(0) == 1
     end
 
-    def to_datapoint : Bytes
+    def to_bytes : Bytes
       bin_val = @value ? 1 : 0
       Bytes[bin_val]
     end
