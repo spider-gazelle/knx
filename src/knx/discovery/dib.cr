@@ -85,15 +85,15 @@ class KNX
     end
 
     def mac_address
-      @device_mac_address.map(&.to_s(16).rjust(2, '0')).join(':')
+      @device_mac_address.join(':', &.to_s(16).rjust(2, '0'))
     end
 
     def multicast_address
-      @device_multicast_address.map(&.to_s).join('.')
+      @device_multicast_address.join('.', &.to_s)
     end
 
     def serial
-      @device_serial.map(&.to_s(16).rjust(2, '0')).join(':')
+      @device_serial.join(':', &.to_s(16).rjust(2, '0'))
     end
   end
 
