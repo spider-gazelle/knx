@@ -2,7 +2,7 @@
 
 Constructs [KNX standard](https://en.wikipedia.org/wiki/KNX_(standard)) datagrams that make it easy to communicate with devices on KNX networks.
 
-[![Build Status](https://travis-ci.org/spider-gazelle/knx.svg?branch=master)](https://travis-ci.org/spider-gazelle/knx)
+[![CI](https://github.com/spider-gazelle/knx/actions/workflows/ci.yml/badge.svg)](https://github.com/spider-gazelle/knx/actions/workflows/ci.yml)
 
 
 ## Usage
