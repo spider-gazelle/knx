@@ -62,7 +62,7 @@ class KNX
       @cemi.broadcast = broadcast
       @cemi.priority = priority
 
-      @cemi.is_group_address = address.is_group?
+      @cemi.is_group_address = address.group?
       @cemi.hop_count = hop_count
 
       @header = Header.new
@@ -94,7 +94,7 @@ class KNX
       super(address, **options)
 
       # Set the protocol control information
-      @action_type = @destination_address.is_group? ? ActionType::GroupWrite : ActionType::IndividualWrite
+      @action_type = @destination_address.group? ? ActionType::GroupWrite : ActionType::IndividualWrite
       @cemi.apply_apci(@action_type, data_array)
       @cemi.tpci = TpciType::UnnumberedData
 
@@ -110,7 +110,7 @@ class KNX
       super(address, **options)
 
       # Set the protocol control information
-      @action_type = @destination_address.is_group? ? ActionType::GroupRead : ActionType::IndividualRead
+      @action_type = @destination_address.group? ? ActionType::GroupRead : ActionType::IndividualRead
       @cemi.apply_apci(@action_type)
       @cemi.tpci = TpciType::UnnumberedData
     end

@@ -1,5 +1,4 @@
-require "spec"
-require "../src/knx"
+require "./spec_helper"
 
 describe KNX::ConnectStateRequest do
   it "should parse a connect state request" do

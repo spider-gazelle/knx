@@ -1,5 +1,4 @@
-require "spec"
-require "../src/knx"
+require "./spec_helper"
 
 describe KNX::DisconnectRequest do
   it "should parse a disconnect request" do

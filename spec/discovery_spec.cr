@@ -1,5 +1,4 @@
-require "spec"
-require "../src/knx/discovery/search_request"
+require "./spec_helper"
 
 describe KNX::SearchRequest do
   it "should parse the HPAI component" do

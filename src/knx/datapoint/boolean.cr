@@ -1,5 +1,6 @@
 class KNX
   class Boolean < Datapoint
+    # ameba:disable Style/QueryBoolMethods
     property value : Bool = false
 
     def initialize(@value : Bool)

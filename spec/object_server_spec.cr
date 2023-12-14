@@ -1,5 +1,4 @@
-require "spec"
-require "../src/knx/object_server"
+require "./spec_helper"
 
 describe KNX::ObjectServer do
   knx = KNX::ObjectServer.new

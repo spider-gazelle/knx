@@ -1,3 +1,4 @@
+require "log"
 require "bindata"
 require "./knx/header"
 require "./knx/cemi"
@@ -14,9 +15,11 @@ require "./knx/routing/indication_request"
 # Discovery and negotiation: http://knxer.net/?p=78
 
 class KNX
+  Log = ::App::Log.for("knx")
+
   property priority : Priority
-  property no_repeat : Bool
-  property broadcast : Bool
+  property? no_repeat : Bool
+  property? broadcast : Bool
   property hop_count : UInt8
   property msg_code : MsgCode
   property cmac_key : Bytes?

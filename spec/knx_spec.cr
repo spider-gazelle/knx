@@ -1,5 +1,4 @@
-require "spec"
-require "../src/knx"
+require "./spec_helper"
 
 describe "knx protocol helper" do
   knx = KNX.new

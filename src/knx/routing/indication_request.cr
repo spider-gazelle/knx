@@ -55,7 +55,7 @@ class KNX
       request.cemi.no_repeat = no_repeat
       request.cemi.broadcast = broadcast
       request.cemi.priority = priority
-      request.cemi.is_group_address = address.is_group?
+      request.cemi.is_group_address = address.group?
       request.cemi.hop_count = hop_count
 
       source_address = IndividualAddress.parse_friendly("0.0.1")

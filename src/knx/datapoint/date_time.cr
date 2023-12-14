@@ -12,9 +12,9 @@ class KNX
 
   class DateTime < Datapoint
     property value : Time = Time.utc
-    property using_ntp : Bool = true
-    property daylight_savings : Bool = false
-    property fault : Bool = false
+    property? using_ntp : Bool = true
+    property? daylight_savings : Bool = false
+    property? fault : Bool = false
 
     def initialize(@value : Time)
     end

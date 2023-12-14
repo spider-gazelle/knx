@@ -61,7 +61,7 @@ class KNX
       io.read_bytes(UInt16, IO::ByteFormat::BigEndian)
     end
 
-    def is_group?
+    def group?
       true
     end
 
@@ -135,7 +135,7 @@ class KNX
       "#{area_address}.#{line_address}.#{device_address}"
     end
 
-    def is_group?
+    def group?
       false
     end
 

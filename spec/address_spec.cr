@@ -1,5 +1,4 @@
-require "spec"
-require "../src/knx"
+require "./spec_helper"
 
 describe KNX::Address do
   it "should parse a group address" do

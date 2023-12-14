@@ -1,5 +1,4 @@
-require "spec"
-require "../src/knx"
+require "./spec_helper"
 
 describe "knx datapoint helper" do
   describe KNX::TwoByteFloatingPoint do
