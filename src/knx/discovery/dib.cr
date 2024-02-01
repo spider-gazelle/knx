@@ -1,5 +1,5 @@
 class KNX
-  enum DescriptionType
+  enum DescriptionType : UInt8
     DeviceInformation        = 1
     SupportedServiceFamilies
     IPConfig
@@ -8,52 +8,8 @@ class KNX
     ManufacturerData         = 0xFE
   end
 
-  # Generic block
-  class InformationBlock < BinData
-    endian :big
-
-    uint8 length
-    enum_field UInt8, description_type : DescriptionType = DescriptionType::DeviceInformation
-
-    custom device_info : DIB = DIB.new, onlyif: ->{ description_type == DescriptionType::DeviceInformation }
-    array supported_services : ServiceFamily, length: ->{ (length - 2) // 2 }, onlyif: ->{ description_type == DescriptionType::SupportedServiceFamilies }
-
-    # Ignore data for information we can't parse
-    bytes raw_data, length: ->{ length - 2 }, onlyif: ->{
-      !{
-        DescriptionType::DeviceInformation,
-        DescriptionType::SupportedServiceFamilies,
-      }.includes?(description_type)
-    }
-  end
-
-  # Specific info blocks
-  class DeviceInfo < BinData
-    endian :big
-
-    LENGTH = 54
-
-    uint8 length, value: ->{ 54 }
-    enum_field UInt8, description_type : DescriptionType = DescriptionType::DeviceInformation
-    custom info : DIB = DIB.new
-
-    {% for func in [:name, :mac_address, :multicast_address, :serial] %}
-      def {{func.id}}
-        @info.{{func.id}}
-      end
-    {% end %}
-  end
-
-  class SupportedServices < BinData
-    endian :big
-
-    uint8 length, value: ->{ families.size * 2 + 2 }
-    enum_field UInt8, description_type : DescriptionType = DescriptionType::SupportedServiceFamilies
-    array families : ServiceFamily, length: ->{ (length - 2) // 2 }
-  end
-
   @[Flags]
-  enum MediumType
+  enum MediumType : UInt8
     Reserved
     TP1
     PL110
@@ -62,19 +18,36 @@ class KNX
     IP
   end
 
+  enum FamilyType : UInt8
+    Core                = 2
+    DeviceManagement
+    Tunnelling
+    Routing
+    RemoteLogging
+    RemoteConfiguration
+    ObjectServer
+  end
+
+  class ServiceFamily < BinData
+    endian :big
+
+    field family_type : FamilyType = FamilyType::Core
+    field version : UInt8
+  end
+
   # Device Information Block
   class DIB < BinData
     endian :big
 
-    enum_field UInt8, medium : MediumType = MediumType::IP
+    field medium : MediumType = MediumType::IP
     # Device status just used to indicate if in programming mode
-    uint8 device_status
-    custom source : IndividualAddress = IndividualAddress.new
-    uint16 project_installation_id
-    bytes device_serial, length: ->{ 6 }
-    bytes device_multicast_address, length: ->{ 4 }
-    bytes device_mac_address, length: ->{ 6 }
-    string friendly_name, length: ->{ 30 }
+    field device_status : UInt8
+    field source : IndividualAddress = IndividualAddress.new
+    field project_installation_id : UInt16
+    field device_serial : Bytes, length: ->{ 6 }
+    field device_multicast_address : Bytes, length: ->{ 4 }
+    field device_mac_address : Bytes, length: ->{ 6 }
+    field friendly_name : String, length: ->{ 30 }
 
     def programming_mode?
       @device_status > 0
@@ -97,20 +70,47 @@ class KNX
     end
   end
 
-  enum FamilyType
-    Core                = 2
-    DeviceManagement
-    Tunnelling
-    Routing
-    RemoteLogging
-    RemoteConfiguration
-    ObjectServer
-  end
-
-  class ServiceFamily < BinData
+  # Generic block
+  class InformationBlock < BinData
     endian :big
 
-    enum_field UInt8, family_type : FamilyType = FamilyType::Core
-    uint8 version
+    field length : UInt8
+    field description_type : DescriptionType = DescriptionType::DeviceInformation
+
+    field device_info : DIB = DIB.new, onlyif: ->{ description_type == DescriptionType::DeviceInformation }
+    field supported_services : Array(ServiceFamily), length: ->{ (length - 2) // 2 }, onlyif: ->{ description_type == DescriptionType::SupportedServiceFamilies }
+
+    # Ignore data for information we can't parse
+    field raw_data : Bytes, length: ->{ length - 2 }, onlyif: ->{
+      !{
+        DescriptionType::DeviceInformation,
+        DescriptionType::SupportedServiceFamilies,
+      }.includes?(description_type)
+    }
+  end
+
+  # Specific info blocks
+  class DeviceInfo < BinData
+    endian :big
+
+    LENGTH = 54
+
+    field length : UInt8, value: ->{ 54 }
+    field description_type : DescriptionType = DescriptionType::DeviceInformation
+    field info : DIB = DIB.new
+
+    {% for func in [:name, :mac_address, :multicast_address, :serial] %}
+      def {{func.id}}
+        @info.{{func.id}}
+      end
+    {% end %}
+  end
+
+  class SupportedServices < BinData
+    endian :big
+
+    field length : UInt8, value: ->{ families.size * 2 + 2 }
+    field description_type : DescriptionType = DescriptionType::SupportedServiceFamilies
+    field families : Array(ServiceFamily), length: ->{ (length - 2) // 2 }
   end
 end

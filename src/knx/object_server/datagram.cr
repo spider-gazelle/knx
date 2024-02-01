@@ -1,9 +1,9 @@
 class KNX
   class ObjectServer
     class Datagram < BinData
-      custom knx_header : KNX::Header = KNX::Header.new
-      custom connection : ConnectionHeader = ConnectionHeader.new
-      custom header : ObjectHeader = ObjectHeader.new
+      field knx_header : KNX::Header = KNX::Header.new
+      field connection : ConnectionHeader = ConnectionHeader.new
+      field header : ObjectHeader = ObjectHeader.new
 
       def error
         @header.error

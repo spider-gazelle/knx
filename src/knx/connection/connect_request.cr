@@ -7,10 +7,10 @@ class KNX
   class ConnectRequest < BinData
     endian big
 
-    custom header : Header = Header.new
-    custom control_endpoint : HPAI = HPAI.new
-    custom data_endpoint : HPAI = HPAI.new
-    custom cri : CRI = CRI.new
+    field header : Header = Header.new
+    field control_endpoint : HPAI = HPAI.new
+    field data_endpoint : HPAI = HPAI.new
+    field cri : CRI = CRI.new
 
     def self.new(
       control : Socket::IPAddress,
@@ -36,9 +36,9 @@ class KNX
   class ConnectResponse < BinData
     endian big
 
-    custom header : Header = Header.new
-    custom error : ErrorStatus = ErrorStatus.new
-    custom control_endpoint : HPAI = HPAI.new
-    custom crd : CRD = CRD.new
+    field header : Header = Header.new
+    field error : ErrorStatus = ErrorStatus.new
+    field control_endpoint : HPAI = HPAI.new
+    field crd : CRD = CRD.new
   end
 end

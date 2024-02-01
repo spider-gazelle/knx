@@ -1,7 +1,7 @@
 # frozen_string_literal: true, encoding: ASCII-8BIT
 
 class KNX
-  enum RequestTypes
+  enum RequestTypes : UInt16
     SearchRequest              = 0x0201
     SearchResponse             = 0x0202
     DescriptionRequest         = 0x0203
@@ -43,31 +43,33 @@ class KNX
   class Header < BinData
     endian big
 
-    uint8 :header_length, default: 0x06 # Length 6 (always for version 1)
-    uint8 :version, default: 0x10_u8    # version 1
-    enum_field UInt16, request_type : RequestTypes = RequestTypes::RoutingIndication
-    uint16 :request_length
+    field header_length : UInt8 = 0x06 # Length 6 (always for version 1)
+    field version : UInt8 = 0x10_u8    # version 1
+    field request_type : RequestTypes = RequestTypes::RoutingIndication
+    field request_length : UInt16
 
     # See: https://youtu.be/UjOBudAG654?t=42m20s
     group :wrapper, onlyif: ->{ request_type == RequestTypes::SecureWrapper } do
-      uint16 :session_id # Not sure what this should be
+      field session_id : UInt16 # Not sure what this should be
 
       bit_field do
         bits 48, :timestamp         # Timestamp for multicast messages, sequence number for tunneling
         bits 48, :knx_serial_number # Serial of the device - random constant
       end
-      uint16 :message_tag # Random number
+
+      # Random number
+      field message_tag : UInt16
 
       # header + security info + cbc_mac == 38
       #   6          16            16    == 38
-      string :encrypted_frame, length: ->{ parent.request_length - 38 }
+      field encrypted_frame : String, length: ->{ parent.request_length - 38 }
       # Encryption: Timestamp + Serial Number + Tag + 0x01 + counter (1 byte), starting at 0
       # Single key for each multicast group: PID_BACKBONE_KEY
       # https://en.wikipedia.org/wiki/CCM_mode
 
       # https://en.wikipedia.org/wiki/CBC-MAC (always 128bit (16bytes) in KNX)
       # Timestamp + Serial Number + Tag + frame length (2 bytes)
-      string :cmac, length: ->{ 16 }
+      field cmac : String, length: ->{ 16 }
     end
 
     group :timer, onlyif: ->{ request_type == RequestTypes::SecureTimerNotify } do
@@ -75,10 +77,10 @@ class KNX
         bits 48, :timestamp         # Current time as understood by the device
         bits 48, :knx_serial_number # Serial of the device
       end
-      uint16 :message_tag # Random number
+      field message_tag : UInt16 # Random number
 
       # Timestamp + Serial Number + Tag + frame length (2 bytes) == 0x0000
-      string :cmac, length: ->{ 16 }
+      field cmac : String, length: ->{ 16 }
     end
   end
 end

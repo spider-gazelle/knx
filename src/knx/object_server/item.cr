@@ -20,8 +20,8 @@ class KNX
     class Item < BinData
       endian :big
 
-      uint16 :id
-      uint8 :request_flags
+      field id : UInt16
+      field request_flags : UInt8
 
       # Request layout
       # bit_field do
@@ -98,8 +98,8 @@ class KNX
         value
       end
 
-      uint8 :value_length, value: ->{ value.size.to_u8 }
-      bytes :value, length: ->{ value_length }
+      field value_length : UInt8, value: ->{ value.size.to_u8 }
+      field value : Bytes, length: ->{ value_length }
     end
   end
 end

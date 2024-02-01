@@ -7,13 +7,13 @@ class KNX
   class TunnelRequest < BinData
     endian big
 
-    custom header : Header = Header.new
-    uint8 length, value: ->{ 4 }
-    uint8 channel_id
-    uint8 sequence
-    enum_field UInt8, status : ConnectionError = ConnectionError::NoError
+    field header : Header = Header.new
+    field length : UInt8, value: ->{ 4 }
+    field channel_id : UInt8
+    field sequence : UInt8
+    field status : ConnectionError = ConnectionError::NoError
 
-    custom cemi : CEMI = CEMI.new
+    field cemi : CEMI = CEMI.new
 
     def self.new(
       channel_id : Int,
@@ -44,10 +44,10 @@ class KNX
   class TunnelResponse < BinData
     endian big
 
-    custom header : Header = Header.new
-    uint8 length, value: ->{ 4 }
-    uint8 channel_id
-    uint8 sequence
-    enum_field UInt8, status : ConnectionError = ConnectionError::NoError
+    field header : Header = Header.new
+    field length : UInt8, value: ->{ 4 }
+    field channel_id : UInt8
+    field sequence : UInt8
+    field status : ConnectionError = ConnectionError::NoError
   end
 end

@@ -1,5 +1,5 @@
 class KNX
-  enum ProtocolType
+  enum ProtocolType : UInt8
     IPv4UDP = 1
     IPv4TCP = 2
   end
@@ -10,10 +10,10 @@ class KNX
 
     LENGTH = 8
 
-    uint8 length, default: 8_u8
-    enum_field UInt8, protocol : ProtocolType = ProtocolType::IPv4UDP
-    bytes ip_addr, length: ->{ 4 }
-    uint16 port
+    field length : UInt8 = 8_u8
+    field protocol : ProtocolType = ProtocolType::IPv4UDP
+    field ip_addr : Bytes, length: ->{ 4 }
+    field port : UInt16
 
     def self.new(ip : Socket::IPAddress)
       hpai = HPAI.new

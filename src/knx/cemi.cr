@@ -87,7 +87,7 @@ class KNX
     NumberedControl   = 0b11
   end
 
-  enum MsgCode
+  enum MsgCode : UInt8
     RawRequest              = 0x10
     DataRequest             = 0x11
     PollDataRequest         = 0x13
@@ -195,9 +195,9 @@ class KNX
   class CEMI < BinData
     endian :big
 
-    enum_field UInt8, msg_code : MsgCode = MsgCode::RawRequest
-    uint8 :info_length, value: ->{ additional_info.size }
-    bytes :additional_info, length: ->{ info_length }
+    field msg_code : MsgCode = MsgCode::RawRequest
+    field info_length : UInt8, value: ->{ additional_info.size }
+    field additional_info : Bytes, length: ->{ info_length }
 
     # ---------------------
     #    Control Fields
@@ -241,7 +241,7 @@ class KNX
       bits 1, :_reserved_ # default: 0_u8
       bool no_repeat
       bool broadcast
-      enum_bits 2, priority : Priority = Priority::LOW
+      bits 2, priority : Priority = Priority::LOW
       bool ack_requested
       bool is_error
 
@@ -262,10 +262,10 @@ class KNX
     end
 
     # When sending, setting the source address to 0 allows the router to configure
-    bytes :source_address, length: ->{ 2 }
-    bytes :destination_address, length: ->{ 2 }
+    field source_address : Bytes, length: ->{ 2 }
+    field destination_address : Bytes, length: ->{ 2 }
 
-    uint8 :data_length
+    field data_length : UInt8
 
     # In the Common EMI frame, the APDU payload is defined as follows:
 
@@ -304,7 +304,7 @@ class KNX
     # +-----------------------------------------------------------------------++-------------....
     bit_field do
       # transport protocol control information
-      enum_bits 2, tpci : TpciType = TpciType::UnnumberedData
+      bits 2, tpci : TpciType = TpciType::UnnumberedData
       bits 4, :tpci_seq_num # Sequence number when tpci is sequenced
       bits 4, :apci         # application protocol control information (What we trying to do: Read, write, respond etc)
       bits 6, :data         # Or the tail end of APCI depending on the message type

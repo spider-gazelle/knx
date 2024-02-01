@@ -1,5 +1,5 @@
 class KNX
-  enum ConnectionError
+  enum ConnectionError : UInt8
     # The connection state is normal.
     NoError = 0
 
@@ -40,7 +40,7 @@ class KNX
   class ErrorStatus < BinData
     LENGTH = 2
 
-    uint8 length, value: ->{ 1 }
-    enum_field UInt8, status : ConnectionError = ConnectionError::NoError
+    field length : UInt8, value: ->{ 1 }
+    field status : ConnectionError = ConnectionError::NoError
   end
 end

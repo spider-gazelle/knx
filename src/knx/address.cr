@@ -76,7 +76,8 @@ class KNX
       bits 4, :main_group
       bits 3, :middle_group
     end
-    uint8 :sub_group
+
+    field sub_group : UInt8
 
     def to_s : String
       "#{main_group}/#{middle_group}/#{sub_group}"
@@ -129,7 +130,7 @@ class KNX
       bits 4, :area_address
       bits 4, :line_address
     end
-    uint8 :device_address
+    field device_address : UInt8
 
     def to_s : String
       "#{area_address}.#{line_address}.#{device_address}"

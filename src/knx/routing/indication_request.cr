@@ -2,9 +2,9 @@ class KNX
   class IndicationRequest < BinData
     endian big
 
-    custom header : Header = Header.new
-    custom cemi : CEMI = CEMI.new
-    bytes extended_bytes, length: ->{ header.request_length - 17 - cemi.info_length }
+    field header : Header = Header.new
+    field cemi : CEMI = CEMI.new
+    field extended_bytes : Bytes, length: ->{ header.request_length - 17 - cemi.info_length }
 
     def payload : Bytes
       data_length = @header.request_length - 17 - @cemi.info_length

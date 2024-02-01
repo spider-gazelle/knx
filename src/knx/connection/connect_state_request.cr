@@ -10,10 +10,10 @@ class KNX
   class ConnectStateRequest < BinData
     endian big
 
-    custom header : Header = Header.new
-    uint8 channel_id
-    enum_field UInt8, status : ConnectionError = ConnectionError::NoError
-    custom control_endpoint : HPAI = HPAI.new
+    field header : Header = Header.new
+    field channel_id : UInt8
+    field status : ConnectionError = ConnectionError::NoError
+    field control_endpoint : HPAI = HPAI.new
 
     def self.new(
       channel_id : Int,
@@ -33,8 +33,8 @@ class KNX
   class ConnectStateResponse < BinData
     endian big
 
-    custom header : Header = Header.new
-    uint8 channel_id
-    enum_field UInt8, status : ConnectionError = ConnectionError::NoError
+    field header : Header = Header.new
+    field channel_id : UInt8
+    field status : ConnectionError = ConnectionError::NoError
   end
 end

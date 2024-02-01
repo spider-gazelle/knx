@@ -1,5 +1,5 @@
 class KNX
-  enum ConnectType
+  enum ConnectType : UInt8
     # Data connection used to configure a KNXnet/IP device
     DeviceManagement = 0x03
 
@@ -26,8 +26,8 @@ class KNX
 
     LENGTH = 4
 
-    uint8 length, value: ->{ 4 }
-    enum_field UInt8, connect_type : ConnectType = ConnectType::Tunnel
+    field length : UInt8, value: ->{ 4 }
+    field connect_type : ConnectType = ConnectType::Tunnel
     bit_field do
       bool bus_monitor_tunnel
       bits 4, :_reserved_
@@ -35,6 +35,6 @@ class KNX
       bool data_link_tunnel
       bits 1, :_reserved2_
     end
-    uint8 reserved
+    field reserved : UInt8
   end
 end

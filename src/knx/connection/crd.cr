@@ -5,8 +5,8 @@ class KNX
 
     LENGTH = 4
 
-    uint8 length, value: ->{ 4 }
-    enum_field UInt8, connect_type : ConnectType = ConnectType::Tunnel
-    uint16 identifier
+    field length : UInt8, value: ->{ 4 }
+    field connect_type : ConnectType = ConnectType::Tunnel
+    field identifier : UInt16
   end
 end

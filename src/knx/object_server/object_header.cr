@@ -1,21 +1,23 @@
+require "./item"
+
 class KNX
   class ObjectServer
     class ConnectionHeader < BinData
       endian :big
 
-      uint8 :header_length, default: 0x04
-      uint8 :reserved1, default: 0x00
-      uint8 :reserved2, default: 0x00
-      uint8 :reserved3, default: 0x00
+      field header_length : UInt8 = 0x04
+      field reserved1 : UInt8 = 0x00
+      field reserved2 : UInt8 = 0x00
+      field reserved3 : UInt8 = 0x00
     end
 
-    enum Filter
+    enum Filter : UInt8
       AllValues     = 0
       ValidValues
       UpdatedValues
     end
 
-    enum Error
+    enum Error : UInt8
       NoError             = 0
       DeviceInternalError
       NoItemFound
@@ -33,18 +35,18 @@ class KNX
     class ObjectHeader < BinData
       endian :big
 
-      uint8 :main_service, default: 0xF0
-      uint8 :sub_service
-      uint16 :start_item
-      uint16 :item_count
+      field main_service : UInt8 = 0xF0
+      field sub_service : UInt8
+      field start_item : UInt16
+      field item_count : UInt16
 
       property filter : Filter?
 
-      enum_field UInt8, _filter : Filter = Filter::ValidValues, value: ->{ filter ? filter : _filter }, onlyif: ->{ filter }
-      enum_field UInt8, error : Error = Error::NoError, onlyif: ->{ item_count == 0 }
+      field _filter : Filter = Filter::ValidValues, value: ->{ filter ? filter : _filter }, onlyif: ->{ filter }
+      field error : Error = Error::NoError, onlyif: ->{ item_count == 0 }
 
       # Requests or Statuses
-      array items : Item, length: ->{ item_count }
+      field items : Array(Item), length: ->{ item_count }
     end
   end
 end

@@ -8,8 +8,8 @@ class KNX
   class SearchRequest < BinData
     endian big
 
-    custom header : Header = Header.new
-    custom address : HPAI = HPAI.new
+    field header : Header = Header.new
+    field address : HPAI = HPAI.new
 
     def self.new(ip : Socket::IPAddress, protocol : ProtocolType = ProtocolType::IPv4UDP)
       request = SearchRequest.new
@@ -41,9 +41,9 @@ class KNX
   class SearchResponse < BinData
     endian big
 
-    custom header : Header = Header.new
-    custom address : HPAI = HPAI.new
-    custom device : DeviceInfo = DeviceInfo.new
-    custom services : SupportedServices = SupportedServices.new
+    field header : Header = Header.new
+    field address : HPAI = HPAI.new
+    field device : DeviceInfo = DeviceInfo.new
+    field services : SupportedServices = SupportedServices.new
   end
 end
