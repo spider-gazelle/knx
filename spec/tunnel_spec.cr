@@ -25,4 +25,59 @@ describe KNX::TunnelRequest do
     req.sequence.should eq(23)
     req.status.should eq(KNX::ConnectionError::NoError)
   end
+
+  # https://doc.qt.io/qt-5/qtknx-tunnelclient-example.html
+
+  it "should parse a tunnel connect request" do
+    raw = "06100205001a08010a094e3bbf0b08010a094e3bbf0b04040200".hexbytes
+    input = IO::Memory.new(raw)
+
+    req = input.read_bytes(KNX::ConnectRequest)
+    req.header.request_type.should eq(KNX::RequestTypes::ConnectRequest)
+    req.control_endpoint.ip_address.should eq Socket::IPAddress.new("10.9.78.59", 48907)
+    req.data_endpoint.ip_address.should eq Socket::IPAddress.new("10.9.78.59", 48907)
+    req.cri.data_link_tunnel.should be_true
+  end
+
+  it "should parse a tunnel connect response" do
+    raw = "0610020600143d0008010a094e510e5704041103".hexbytes
+    input = IO::Memory.new(raw)
+
+    req = input.read_bytes(KNX::ConnectResponse)
+    req.header.request_type.should eq(KNX::RequestTypes::ConnectResponse)
+  end
+
+  it "should parse a tunnel connection state request" do
+    raw = "0610020700103d0008010a094e3bbf0b".hexbytes
+    input = IO::Memory.new(raw)
+
+    req = input.read_bytes(KNX::ConnectStateRequest)
+    req.header.request_type.should eq(KNX::RequestTypes::ConnectionStateRequest)
+    req.control_endpoint.ip_address.should eq Socket::IPAddress.new("10.9.78.59", 48907)
+  end
+
+  it "should parse a tunnel connection state response" do
+    raw = "0610020800083d00".hexbytes
+    input = IO::Memory.new(raw)
+
+    req = input.read_bytes(KNX::ConnectStateResponse)
+    req.header.request_type.should eq(KNX::RequestTypes::ConnectionStateResponse)
+  end
+
+  it "should parse a tunnel disconnect request" do
+    raw = "0610020900103d0008010a094e3bbf0b".hexbytes
+    input = IO::Memory.new(raw)
+
+    req = input.read_bytes(KNX::DisconnectRequest)
+    req.header.request_type.should eq(KNX::RequestTypes::DisconnectRequest)
+    req.control_endpoint.ip_address.should eq Socket::IPAddress.new("10.9.78.59", 48907)
+  end
+
+  it "should parse a tunnel disconnect response" do
+    raw = "0610020a00083d00".hexbytes
+    input = IO::Memory.new(raw)
+
+    req = input.read_bytes(KNX::DisconnectResponse)
+    req.header.request_type.should eq(KNX::RequestTypes::DisconnectResponse)
+  end
 end

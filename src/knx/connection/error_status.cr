@@ -36,11 +36,4 @@ class KNX
     # requested tunnelling layer is not supported
     TunnellingLayer = 0x29
   end
-
-  class ErrorStatus < BinData
-    LENGTH = 2
-
-    field length : UInt8, value: ->{ 1 }
-    field status : ConnectionError = ConnectionError::NoError
-  end
 end

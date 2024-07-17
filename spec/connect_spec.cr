@@ -58,7 +58,7 @@ describe KNX::ConnectRequest do
     req = input.read_bytes(KNX::ConnectResponse)
     req.header.request_type.should eq(KNX::RequestTypes::ConnectResponse)
     req.control_endpoint.ip_address.should eq(Socket::IPAddress.new("192.168.42.10", 3671))
-    req.error.status.should eq(KNX::ConnectionError::NoError)
+    req.status.should eq(KNX::ConnectionError::NoError)
     req.crd.connect_type.should eq(KNX::ConnectType::Tunnel)
     req.crd.identifier.should eq(4607)
   end
