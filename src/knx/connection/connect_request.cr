@@ -37,7 +37,8 @@ class KNX
     endian big
 
     field header : Header = Header.new
-    field error : ErrorStatus = ErrorStatus.new
+    field channel_id : UInt8
+    field status : ConnectionError = ConnectionError::NoError
     field control_endpoint : HPAI = HPAI.new
     field crd : CRD = CRD.new
   end

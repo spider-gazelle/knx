@@ -36,5 +36,13 @@ class KNX
     field header : Header = Header.new
     field channel_id : UInt8
     field status : ConnectionError = ConnectionError::NoError
+
+    def self.new(channel_id : Int)
+      response = self.new
+      response.channel_id = channel_id.to_u8
+      response.header.request_length = (2 + response.header.header_length).to_u16
+      response.header.request_type = ::KNX::RequestTypes::ConnectionStateResponse
+      response
+    end
   end
 end

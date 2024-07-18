@@ -1,5 +1,3 @@
-# frozen_string_literal: true, encoding: ASCII-8BIT
-
 class KNX
   enum RequestTypes : UInt16
     SearchRequest              = 0x0201

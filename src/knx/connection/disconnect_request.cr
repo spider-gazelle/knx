@@ -11,11 +11,16 @@ class KNX
       protocol : ProtocolType = ProtocolType::IPv4UDP
     )
       request = super(channel_id, control, protocol)
-      request.header.request_type = ::KNX::RequestTypes::ConnectionStateRequest
+      request.header.request_type = ::KNX::RequestTypes::DisconnectRequest
       request
     end
   end
 
   class DisconnectResponse < ConnectStateResponse
+    def self.new(channel_id : Int)
+      response = super(channel_id)
+      response.header.request_type = ::KNX::RequestTypes::DisconnectResponse
+      response
+    end
   end
 end
