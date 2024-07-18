@@ -88,6 +88,7 @@ class KNX
     # establish comms
     def connect : Nil
       return if connected?
+      raise "client has been shutdown" if @channel.closed?
       send KNX::ConnectRequest.new(@control)
     end
 
@@ -97,10 +98,19 @@ class KNX
       send KNX::ConnectStateRequest.new(@channel_id, @control)
     end
 
-    # close comms
+    # perform a graceful disconnect
     def disconnect : Nil
       return unless connected?
       send KNX::DisconnectRequest.new(@channel_id, @control)
+    end
+
+    # perform a hard and fast disconnect, instance is not re-usable
+    def shutdown! : Nil
+      return unless connected?
+      @mutex.synchronize { @request_queue.clear }
+      @channel.close
+      @connected = false
+      @on_transmit.try &.call(KNX::DisconnectRequest.new(@channel_id, @control).to_slice) rescue nil
     end
 
     # perform an action / query
