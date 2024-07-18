@@ -8,7 +8,6 @@ class KNX
     endian big
 
     field header : Header = Header.new
-    # TODO::
     field length : UInt8, value: ->{ 4 }
     field channel_id : UInt8
     field sequence : UInt8
@@ -23,7 +22,7 @@ class KNX
     )
       request = TunnelRequest.new
       request.header.request_type = RequestTypes::TunnellingRequest
-      request.header.request_length = (HPAI::LENGTH + 2 + request.header.header_length).to_u16
+      request.header.request_length = (cemi.to_slice.size + 4 + request.header.header_length).to_u16
 
       request.channel_id = channel_id.to_u8
       request.sequence = sequence.to_u8
@@ -61,6 +60,7 @@ class KNX
     )
       response = TunnelResponse.new
       response.header.request_type = RequestTypes::TunnellingACK
+      response.header.request_length = (4 + response.header.header_length).to_u16
 
       response.channel_id = channel_id.to_u8
       response.sequence = sequence.to_u8

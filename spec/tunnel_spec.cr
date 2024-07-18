@@ -13,6 +13,42 @@ describe KNX::TunnelRequest do
     req.sequence.should eq(23)
     req.cemi.is_group_address.should eq(true)
     req.destination_address.should eq("9/0/8")
+
+    raw = "061004200015043d00001100b4e000000002010000".hexbytes
+    input = IO::Memory.new(raw)
+
+    req = input.read_bytes(KNX::TunnelRequest)
+    req.header.request_type.should eq(KNX::RequestTypes::TunnellingRequest)
+    req.length.should eq 4
+    req.channel_id.should eq(61)
+    req.sequence.should eq(0)
+
+    raw = "061004200015043d01002900b4e011010002010040".hexbytes
+    input = IO::Memory.new(raw)
+
+    req = input.read_bytes(KNX::TunnelRequest)
+    req.header.request_type.should eq(KNX::RequestTypes::TunnellingRequest)
+    req.length.should eq 4
+    req.channel_id.should eq(61)
+    req.sequence.should eq(1)
+
+    raw = "061004200015043d00002e00b4e011030002010000".hexbytes
+    input = IO::Memory.new(raw)
+
+    req = input.read_bytes(KNX::TunnelRequest)
+    req.header.request_type.should eq(KNX::RequestTypes::TunnellingRequest)
+    req.length.should eq 4
+    req.channel_id.should eq(61)
+    req.sequence.should eq(0)
+  end
+
+  it "should generate a tunnel request" do
+    raw = "061004200015043d00001100b4e000000002010000".hexbytes
+    input = IO::Memory.new(raw)
+    ref = input.read_bytes(KNX::TunnelRequest)
+
+    req = KNX::TunnelRequest.new(ref.channel_id, ref.cemi)
+    req.to_slice.should eq raw
   end
 
   it "should parse a tunnel ack response" do
@@ -45,6 +81,7 @@ describe KNX::TunnelRequest do
 
     req = input.read_bytes(KNX::ConnectResponse)
     req.header.request_type.should eq(KNX::RequestTypes::ConnectResponse)
+    req.channel_id.should eq(61)
   end
 
   it "should parse a tunnel connection state request" do
@@ -54,6 +91,15 @@ describe KNX::TunnelRequest do
     req = input.read_bytes(KNX::ConnectStateRequest)
     req.header.request_type.should eq(KNX::RequestTypes::ConnectionStateRequest)
     req.control_endpoint.ip_address.should eq Socket::IPAddress.new("10.9.78.59", 48907)
+  end
+
+  it "should generate a tunnel connection state request" do
+    raw = "0610020700103d0008010a094e3bbf0b".hexbytes
+    input = IO::Memory.new(raw)
+    ref = input.read_bytes(KNX::ConnectStateRequest)
+
+    req = KNX::ConnectStateRequest.new(ref.channel_id, Socket::IPAddress.new("10.9.78.59", 48907))
+    req.to_slice.should eq raw
   end
 
   it "should parse a tunnel connection state response" do
