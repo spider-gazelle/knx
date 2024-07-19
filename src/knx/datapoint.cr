@@ -3,13 +3,13 @@ class KNX
   # favours accuracy over what a device might be expecting
   def self.datapoint(value : Float | String | Time | Bool) : Datapoint
     case value
-    when Float
+    in Float
       FourByteFloat.new(value.to_f32)
-    when String
+    in String
       DpString.new(value)
-    when Time
+    in Time
       DateTime.new(value)
-    when Bool
+    in Bool
       Boolean.new(value)
     end
   end
