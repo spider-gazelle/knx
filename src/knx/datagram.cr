@@ -88,6 +88,7 @@ class KNX
     def initialize(io : IO, two_level_group = false)
       @header = io.read_bytes Header
       @cemi = io.read_bytes CEMI
+      @cemi.two_level_group = two_level_group
     end
   end
 end
