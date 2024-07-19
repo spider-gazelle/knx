@@ -10,7 +10,6 @@ require "./knx/connection/connect_request"
 require "./knx/connection/connect_state_request"
 require "./knx/connection/disconnect_request"
 require "./knx/connection/tunnel_request"
-require "./knx/routing/indication_request"
 
 # Discovery and negotiation: http://knxer.net/?p=78
 
@@ -21,29 +20,30 @@ class KNX
   property? no_repeat : Bool
   property? broadcast : Bool
   property hop_count : UInt8
-  property msg_code : MsgCode
   property cmac_key : Bytes?
+  property source : String
 
   def initialize(
     @priority = Priority::LOW,
     @no_repeat = true,
     @broadcast = true,
     @hop_count = 6_u8,
-    @msg_code = MsgCode::DataIndicator,
     @two_level_group = false,
-    @cmac_key = nil
+    @cmac_key = nil,
+    @source = "0.0.0"
   )
   end
 
   def action(
     address : String,
     data,
-    msg_code : MsgCode = @msg_code,
+    msg_code : MsgCode = MsgCode::DataIndicator,
     no_repeat : Bool = @no_repeat,
     broadcast : Bool = @broadcast,
     priority : Priority = @priority,
     hop_count : UInt8 = @hop_count,
-    request_type : RequestTypes = RequestTypes::RoutingIndication
+    request_type : RequestTypes = RequestTypes::RoutingIndication,
+    source : String = @source
   ) : ActionDatagram
     raw = case data
           when Bool
@@ -76,18 +76,20 @@ class KNX
       broadcast: broadcast,
       priority: priority,
       hop_count: hop_count,
-      request_type: request_type
+      request_type: request_type,
+      source: source
     )
   end
 
   def status(
     address : String,
-    msg_code : MsgCode = @msg_code,
+    msg_code : MsgCode = MsgCode::DataRequest,
     no_repeat : Bool = @no_repeat,
     broadcast : Bool = @broadcast,
     priority : Priority = @priority,
     hop_count : UInt8 = @hop_count,
-    request_type : RequestTypes = RequestTypes::RoutingIndication
+    request_type : RequestTypes = RequestTypes::RoutingIndication,
+    source : String = @source
   )
     StatusDatagram.new(
       address,
@@ -96,7 +98,8 @@ class KNX
       broadcast: broadcast,
       priority: priority,
       hop_count: hop_count,
-      request_type: request_type
+      request_type: request_type,
+      source: source
     )
   end
 

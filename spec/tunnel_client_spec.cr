@@ -108,4 +108,49 @@ describe KNX::TunnelClient do
 
     client.queue_size.should eq 0
   end
+
+  it "should work with helper methods" do
+    client = KNX::TunnelClient.new(
+      Socket::IPAddress.new("10.9.78.59", 48907),
+      knx: ::KNX.new(
+        priority: :alarm,
+        broadcast: true,
+        no_repeat: true
+      )
+    )
+    client.connected?.should eq false
+
+    is_connected = nil
+    last_error = nil
+    last_trans = nil
+    last_cemi = nil
+
+    client.on_state_change do |connected, error|
+      is_connected = connected
+      last_error = error
+    end
+    client.on_transmit { |bytes| last_trans = bytes }
+    client.on_message { |cemi| last_cemi = cemi }
+
+    # check connection flow
+    client.connect
+    last_trans.should eq "06100205001a08010a094e3bbf0b08010a094e3bbf0b04040200".hexbytes
+    client.process "0610020600143d0008010a094e510e5704041103".hexbytes
+
+    is_connected.should eq true
+    last_error.should eq KNX::ConnectionError::NoError
+    client.waiting?.should eq false
+
+    # make some requests
+    client.action("0/0/2", true)
+    last_trans.try(&.hexstring).should eq "061004200015043d00002900b4e000000002010081"
+    client.process "0610020800083d00".hexbytes
+
+    client.action("0/0/2", 2)
+    last_trans.try(&.hexstring).should eq "061004200015043d01002900b4e000000002010082"
+    client.process "0610020800083d00".hexbytes
+
+    client.status("0/0/2")
+    last_trans.try(&.hexstring).should eq "061004200015043d02001100b4e000000002010000"
+  end
 end

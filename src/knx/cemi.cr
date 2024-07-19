@@ -1,24 +1,26 @@
+require "./address"
+
 class KNX
   # APCI type
   enum ActionType
-    GroupRead  = 0
-    GroupResp  = 1
-    GroupWrite = 2
+    GroupRead  =    0
+    GroupResp  = 0x40
+    GroupWrite = 0x80
 
     IndividualWrite = 0x0C0
     IndividualRead  = 0x100
     IndividualResp  = 0x140
 
-    AdcRead =     6
+    AdcRead = 0x180
     AdcResp = 0x1C0
 
     SysNetParamRead  = 0x1C4
     SysNetParamResp  = 0x1C9
     SysNetParamWrite = 0x1CA
 
-    MemoryRead  = 0x020
-    MemoryResp  = 0x024
-    MemoryWrite = 0x028
+    MemoryRead  = 0x200
+    MemoryResp  = 0x240
+    MemoryWrite = 0x280
 
     UserMemoryRead  = 0x2C0
     UserMemoryResp  = 0x2C1
@@ -262,10 +264,21 @@ class KNX
     end
 
     # When sending, setting the source address to 0 allows the router to configure
-    field source_address : Bytes, length: ->{ 2 }
-    field destination_address : Bytes, length: ->{ 2 }
+    field source_address : IndividualAddress = IndividualAddress.new
+    field destination_raw : Bytes, length: ->{ 2 }
 
-    field data_length : UInt8
+    property two_level_group : Bool = false
+    property destination_address : Address do
+      if !is_group_address
+        IndividualAddress.parse(destination_raw)
+      elsif two_level_group
+        GroupAddress2Level.parse(destination_raw)
+      else
+        GroupAddress.parse(destination_raw)
+      end
+    end
+
+    field data_length : UInt8, value: ->{ data_ext.size + 1 }
 
     # In the Common EMI frame, the APDU payload is defined as follows:
 
@@ -307,33 +320,45 @@ class KNX
       bits 2, tpci : TpciType = TpciType::UnnumberedData
       bits 4, :tpci_seq_num # Sequence number when tpci is sequenced
       bits 4, :apci         # application protocol control information (What we trying to do: Read, write, respond etc)
-      bits 6, :data         # Or the tail end of APCI depending on the message type
+      bits 6, :data_short   # Or the tail end of APCI depending on the message type
     end
 
-    # Applies 2 byte APCI value where required
-    #
-    # @param val [Symbol, Integer] the value or symbol representing the APCI value
-    # @return [true, false] returns true if data is available for storage
-    def apply_apci(action : ActionType | Int, data : Bytes? = nil) : Bool
-      value = action.to_i
+    field data_ext : Bytes, length: ->{ data_length > 1 ? data_length - 1 : 0 }
 
-      if value > 15
-        # (value >> 6) & 0b1111
-        self.apci = value.bits(6...10).to_u8
-        self.data = (value & 0b111111).to_u8
-        false
+    property action_type : ActionType = ActionType::GroupRead
+    property data : Bytes = Bytes.new(0)
+
+    before_serialize do
+      value = action_type.to_i
+      self.apci = (value >> 6).to_u8
+
+      self.destination_raw = destination_address.to_slice
+
+      if value & 0x111111 > 0
+        # the action bleeds into the data_short field
+        self.data_short = (value & 0b111111).to_u8
+      elsif data.size == 1 && data[0] <= 0b111111
+        # we can store the 6 bits if we wanted
+        self.data_short = data[0]
+        self.data_ext = Bytes.new(0)
       else
-        self.apci = value.to_u8
-        if data && data[0]? && data[0] <= 0b111111
-          self.data = data[0]
-          true
-        else
-          self.data = 0_u8
-          false
-        end
+        # we use the extended data
+        self.data_short = 0_u8
+        self.data_ext = data
       end
-    rescue e
-      raise ArgumentError.new("Bad apci value: #{data}")
+    end
+
+    after_deserialize do
+      # anything bigger than an Individual Resp (0b0101) does not use data_short
+      # any anything using extended data also is not using it
+      if data_ext.size > 0 || apci > 0b0101_u8
+        # simple to determine the packet type where data ext is used
+        self.data = data_ext
+        self.action_type = ActionType.from_value((apci.to_i << 6) | data_short.to_i)
+      else
+        self.data = Bytes[data_short]
+        self.action_type = ActionType.from_value(apci.to_i << 6)
+      end
     end
   end
 end

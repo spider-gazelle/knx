@@ -6,7 +6,8 @@ class KNX
     def initialize(
       @control : Socket::IPAddress,
       @timeout : Time::Span = 3.seconds,
-      @max_retries : Int32 = 5
+      @max_retries : Int32 = 5,
+      @knx : ::KNX = ::KNX.new(broadcast: false, no_repeat: true)
     )
     end
 
@@ -111,6 +112,16 @@ class KNX
       @channel.close
       @connected = false
       @on_transmit.try &.call(KNX::DisconnectRequest.new(@channel_id, @control).to_slice) rescue nil
+    end
+
+    def action(address : String, data, **options)
+      datagram = @knx.action(address, data, **options)
+      request(datagram.cemi)
+    end
+
+    def status(address : String, **options)
+      datagram = @knx.status(address, **options)
+      request(datagram.cemi)
     end
 
     # perform an action / query

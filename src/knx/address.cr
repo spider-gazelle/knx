@@ -36,20 +36,37 @@ class KNX
   abstract class Address < BinData
     endian :big
 
-    def self.parse(input)
-      case input
-      when Int
-        io = IO::Memory.new(2)
-        io.write_bytes input.to_u16, IO::ByteFormat::BigEndian
-        io.rewind
-        io.read_bytes(self, IO::ByteFormat::BigEndian)
-      when String
-        addr = parse_friendly(input)
-        raise "address parsing failed" unless addr
-        addr
+    def self.parse(input : Int)
+      io = IO::Memory.new(2)
+      io.write_bytes input.to_u16, IO::ByteFormat::BigEndian
+      io.rewind
+      io.read_bytes(self, IO::ByteFormat::BigEndian)
+    end
+
+    def self.parse(bytes : Bytes)
+      io = IO::Memory.new(bytes)
+      io.read_bytes(self)
+    end
+
+    def self.parse(io : IO)
+      io.read_bytes(self)
+    end
+
+    def self.parse(address : String) : Address
+      count = address.count('/')
+      case count
+      when 2
+        GroupAddress.parse_friendly(address)
+      when 1
+        GroupAddress2Level.parse_friendly(address)
       else
-        io = IO::Memory.new(input.to_slice)
-        io.read_bytes(self)
+        IndividualAddress.parse_friendly(address)
+      end
+    end
+
+    macro inherited
+      def self.parse(address : String) : self
+        parse_friendly address
       end
     end
 

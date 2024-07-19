@@ -12,7 +12,7 @@ describe KNX::TunnelRequest do
     req.channel_id.should eq(1)
     req.sequence.should eq(23)
     req.cemi.is_group_address.should eq(true)
-    req.destination_address.should eq("9/0/8")
+    req.destination_address.to_s.should eq("9/0/8")
 
     raw = "061004200015043d00001100b4e000000002010000".hexbytes
     input = IO::Memory.new(raw)

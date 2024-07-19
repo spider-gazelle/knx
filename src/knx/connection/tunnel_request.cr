@@ -32,17 +32,8 @@ class KNX
       request
     end
 
-    def source_address : String
-      KNX::IndividualAddress.parse(@cemi.source_address).to_s
-    end
-
-    def destination_address : String
-      if @cemi.is_group_address
-        KNX::GroupAddress.parse(@cemi.destination_address).to_s
-      else
-        KNX::IndividualAddress.parse(@cemi.destination_address).to_s
-      end
-    end
+    delegate :source_address, to: @cemi
+    delegate :destination_address, to: @cemi
   end
 
   class TunnelResponse < BinData
