@@ -13,6 +13,7 @@ class KNX
 
     getter control : Socket::IPAddress
     getter? connected : Bool = false
+    getter? connecting : Bool = false
     getter channel_id : UInt8 = 0_u8
     getter sequence : UInt8 = 0_u8
     property timeout : Time::Span
@@ -22,7 +23,7 @@ class KNX
     alias Request = ConnectRequest | ConnectStateRequest | DisconnectRequest | TunnelRequest
 
     @request_queue : Array(Request) = [] of Request
-    @channel : Channel(Nil) = Channel(Nil).new
+    @channel : Channel(Nil) = Channel(Nil).new(1)
     @retries : Int32 = 0
     @mutex : Mutex = Mutex.new
 
@@ -55,7 +56,7 @@ class KNX
         @retries = 0
         @waiting = false
         pending = @mutex.synchronize do
-          @request_queue.shift
+          @request_queue.shift?
           @request_queue.first?
         end
         perform_send(pending) if pending
@@ -68,14 +69,14 @@ class KNX
       @retries += 1
 
       if pending = @mutex.synchronize { @request_queue.first? }
-        if @retries <= @max_retries
+        if @retries > @max_retries
           perform_send pending
         else
           @waiting = false
-          @connected = false
-          @mutex.synchronize { @request_queue.clear }
-          @on_transmit.try &.call(KNX::DisconnectRequest.new(@channel_id, @control).to_slice) rescue nil
-          @on_state_change.try &.call(false, KNX::ConnectionError::SubnetworkIssue) rescue nil
+          if connected?
+            @on_transmit.try &.call(KNX::DisconnectRequest.new(@channel_id, @control).to_slice) rescue nil
+          end
+          perform_state_change(false, KNX::ConnectionError::SubnetworkIssue) rescue nil
         end
       end
     end
@@ -88,8 +89,11 @@ class KNX
 
     # establish comms
     def connect : Nil
-      return if connected?
       raise "client has been shutdown" if @channel.closed?
+      @mutex.synchronize do
+        return if connecting? || connected?
+        @connecting = true
+      end
       send KNX::ConnectRequest.new(@control)
     end
 
@@ -107,11 +111,13 @@ class KNX
 
     # perform a hard and fast disconnect, instance is not re-usable
     def shutdown! : Nil
-      return unless connected?
       @mutex.synchronize { @request_queue.clear }
       @channel.close
-      @connected = false
-      @on_transmit.try &.call(KNX::DisconnectRequest.new(@channel_id, @control).to_slice) rescue nil
+
+      if connected?
+        @connected = false
+        @on_transmit.try &.call(KNX::DisconnectRequest.new(@channel_id, @control).to_slice) rescue nil
+      end
     end
 
     def action(address : String, data, **options)
@@ -128,6 +134,19 @@ class KNX
     def request(message : KNX::CEMI)
       raise "not connected" unless connected?
       send KNX::TunnelRequest.new(@channel_id, message)
+    end
+
+    protected def perform_state_change(connected : Bool, error : KNX::ConnectionError)
+      @mutex.synchronize do
+        @connected = connected
+        @connecting = false
+        if !connected
+          @request_queue.clear
+          @channel.send(nil) if @waiting
+        end
+      end
+
+      @on_state_change.try &.call(connected, error)
     end
 
     # connected or disconnected state changed
@@ -178,10 +197,9 @@ class KNX
 
       connected = packet.status.no_error?
       @channel_id = packet.channel_id
-      @connected = connected
       @sequence = 0_u8
       @channel.send(nil) if @waiting
-      @on_state_change.try &.call(connected, packet.status)
+      perform_state_change(connected, packet.status)
       packet
     end
 
@@ -204,8 +222,7 @@ class KNX
       @channel.send(nil) if @waiting
       connected = packet.status.no_error?
       if connected != @connected
-        @connected = connected
-        @on_state_change.try &.call(connected, packet.status)
+        perform_state_change(connected, packet.status)
       end
       packet
     end
@@ -213,6 +230,7 @@ class KNX
     def process(packet : KNX::DisconnectRequest)
       if packet.channel_id == @channel_id
         @on_transmit.try &.call(KNX::DisconnectResponse.new(@channel_id).to_slice) rescue nil
+        perform_state_change(false, packet.status)
       end
       packet
     end
@@ -222,8 +240,7 @@ class KNX
 
       @channel.send(nil) if @waiting
       if packet.status.no_error? || packet.status.connection_id? || packet.status.sequence_number?
-        @connected = false
-        @on_state_change.try &.call(false, packet.status)
+        perform_state_change(false, packet.status)
       end
       packet
     end
