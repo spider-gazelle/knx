@@ -63,6 +63,62 @@ bytes = request.to_slice
 
 ```
 
+and support for Tunnelling
+
+```crystal
+require "knx/tunnel_client"
+
+# connect to the interface
+interface_ip = Socket::IPAddress.new("192.168.0.10", 3671)
+udp_socket = UDPSocket.new
+udp_socket.connect interface_ip.address, interface_ip.port
+
+# determine our local IP address
+local_ip = udp_socket.local_address
+
+# configure the client
+client = KNX::TunnelClient.new(control_ip)
+
+is_connected = false
+client.on_state_change do |connected, error|
+  # we should maintain the connection
+  if connected
+    spawn do
+      loop do
+        break unless is_connected
+        sleep 60.seconds
+        # sends a connection state request
+        client.query_state
+      end
+    end
+  end
+end
+
+# send the data down the transport
+client.on_transmit { |bytes| udp_socket.write bytes }
+
+# we received a tunnelled request from the interface (forwarded broadcast packets)
+client.on_message do |cemi|
+  cemi.destination_address # => 1/2/55
+  cemi.data # => Bytes (can process data based on the address)
+end
+
+# process any incoming data on the socket
+spawn do
+  message = Bytes.new(512)
+  loop do
+    bytes_read, client_addr = udp_socket.receive(message)
+    client.process(message[0, bytes_read])
+  end
+end
+
+# send any messages
+client.status("1/2/55")
+
+client.action("1/2/55", true)
+client.action("2/2/55", 3)
+client.action("1/3/55", 8.4)
+```
 
 ## License
 
