@@ -25,18 +25,18 @@ describe "knx protocol helper" do
 
   it "should generate single bit action requests" do
     datagram = knx.action("1/2/0", false)
-    datagram.to_slice.should eq(Bytes[6, 16, 5, 48, 0, 17, 41, 0, 188, 224, 0, 0, 10, 0, 1, 0, 128])
+    datagram.to_slice.should eq(Bytes[6, 16, 5, 48, 0, 17, 17, 0, 188, 224, 0, 0, 10, 0, 1, 0, 128])
 
     datagram = knx.action("1/2/0", true)
-    datagram.to_slice.should eq(Bytes[6, 16, 5, 48, 0, 17, 41, 0, 188, 224, 0, 0, 10, 0, 1, 0, 129])
+    datagram.to_slice.should eq(Bytes[6, 16, 5, 48, 0, 17, 17, 0, 188, 224, 0, 0, 10, 0, 1, 0, 129])
   end
 
   it "should generate byte action requests" do
     datagram = knx.action("1/2/0", 20)
-    datagram.to_slice.should eq(Bytes[6, 16, 5, 48, 0, 17, 41, 0, 188, 224, 0, 0, 10, 0, 1, 0, 148])
+    datagram.to_slice.should eq(Bytes[6, 16, 5, 48, 0, 17, 17, 0, 188, 224, 0, 0, 10, 0, 1, 0, 148])
 
     datagram = knx.action("1/2/0", 240)
-    datagram.to_slice.should eq(Bytes[6, 16, 5, 48, 0, 18, 41, 0, 188, 224, 0, 0, 10, 0, 2, 0, 128, 240])
+    datagram.to_slice.should eq(Bytes[6, 16, 5, 48, 0, 18, 17, 0, 188, 224, 0, 0, 10, 0, 2, 0, 128, 240])
   end
 
   it "should generate status requests" do
@@ -59,7 +59,7 @@ describe "knx protocol helper" do
 
   it "should encode / decode a Group Write" do
     datagram = knx.action("0/0/3", 0x1917, source: "1.1.1")
-    cemi_raw = "2900bce0110100030300801917".hexbytes
+    cemi_raw = "1100bce0110100030300801917".hexbytes
     datagram.cemi.to_slice.should eq(cemi_raw)
 
     input = IO::Memory.new(cemi_raw)

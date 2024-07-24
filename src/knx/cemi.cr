@@ -244,8 +244,8 @@ class KNX
       bool no_repeat
       bool broadcast
       bits 2, priority : Priority = Priority::LOW
-      bool ack_requested
-      bool is_error
+      bool no_ack_wanted
+      bool no_error_confirmation
 
       #  Control Field 2
 

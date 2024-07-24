@@ -37,7 +37,7 @@ class KNX
   def action(
     address : String,
     data,
-    msg_code : MsgCode = MsgCode::DataIndicator,
+    msg_code : MsgCode = MsgCode::DataRequest,
     no_repeat : Bool = @no_repeat,
     broadcast : Bool = @broadcast,
     priority : Priority = @priority,

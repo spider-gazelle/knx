@@ -143,11 +143,11 @@ describe KNX::TunnelClient do
 
     # make some requests
     client.action("0/0/2", true)
-    last_trans.try(&.hexstring).should eq "061004200015043d00002900b4e000000002010081"
+    last_trans.try(&.hexstring).should eq "061004200015043d00001100b4e000000002010081"
     client.process "0610020800083d00".hexbytes
 
     client.action("0/0/2", 2)
-    last_trans.try(&.hexstring).should eq "061004200015043d01002900b4e000000002010082"
+    last_trans.try(&.hexstring).should eq "061004200015043d01001100b4e000000002010082"
     client.process "0610020800083d00".hexbytes
 
     client.status("0/0/2")
