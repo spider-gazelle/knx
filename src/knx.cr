@@ -49,17 +49,21 @@ class KNX
           when Bool
             data ? Bytes[1] : Bytes[0]
           when Int
-            io = IO::Memory.new
-            io.write_bytes(data, IO::ByteFormat::BigEndian)
+            if data.zero?
+              Bytes[0]
+            else
+              io = IO::Memory.new
+              io.write_bytes(data, IO::ByteFormat::BigEndian)
 
-            bytes = io.to_slice
-            index = 0
-            bytes.each_with_index do |byte, i|
-              next if byte == 0
-              index = i
-              break
+              bytes = io.to_slice
+              index = 0
+              bytes.each_with_index do |byte, i|
+                next if byte == 0
+                index = i
+                break
+              end
+              bytes[index..-1]
             end
-            bytes[index..-1]
           when Float, String, Time
             KNX.datapoint(data).to_bytes
           when Datapoint

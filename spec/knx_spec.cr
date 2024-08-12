@@ -78,4 +78,14 @@ describe "knx protocol helper" do
     cemi = input.read_bytes(KNX::CEMI)
     cemi.to_slice.should eq cemi_raw
   end
+
+  it "should encode / decode a Group Write 0" do
+    datagram = knx.action("4/1/7", 0, source: "0.0.0")
+    cemi_raw = "1100bce000002107010080".hexbytes
+    datagram.cemi.to_slice.should eq(cemi_raw)
+
+    input = IO::Memory.new(cemi_raw)
+    cemi = input.read_bytes(KNX::CEMI)
+    cemi.to_slice.should eq cemi_raw
+  end
 end
